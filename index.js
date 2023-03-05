@@ -11,9 +11,11 @@ app.use(express.json(), morgan("dev"));
 const userRouter = require("./userRouter");
 const inventoryRouter = require("./inventoryRouter");
 const cartRouter = require("./cartRouter");
+const ordersRouter = require("./ordersRouter");
 app.use("/users", userRouter);
 app.use("/carts", cartRouter);
 app.use("/inventory", inventoryRouter);
+app.use("/orders", ordersRouter);
 
 
 

@@ -16,7 +16,7 @@ userRouter.get("/:id", (req, res)=>{
 })
 
 // post new user
-userRouter.post("/", (req, res)=>{
+userRouter.post("/newuser", (req, res)=>{
     const newUser = req.body;
     res.send("added new user " + newUser.username);
 });

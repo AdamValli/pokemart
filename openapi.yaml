@@ -1,0 +1,334 @@
+openapi: 3.0.1
+info:
+  title: Pokemart
+  version: 3.0.1
+  description: API for pokemart items, cart and user
+paths:
+  /orders:
+    summary: get all orders
+    description: Retrieve all orders data from orders.json
+    get:
+      summary: get all orders
+      description: get all order from order.json
+      operationId: get_orders
+      responses:
+        default:
+          description: Default error sample response
+          content:
+            application/json:
+              examples:
+                get all orders:
+                  value: |-
+                    {
+                     orders:
+                     [
+                      {id: 1, items: [...], orderQuantity: 5, orderTotal: 5000, orderStatus: "complete"}
+                     ]
+                    }
+      tags:
+        - Orders
+  /orders/neworder:
+    summary: add new order
+    description: add a new order to orders.json
+    post:
+      summary: Add new order
+      description: Create new order with id in orders.json
+      operationId: add_new_order
+      responses:
+        default:
+          description: Default error sample response
+          content:
+            application/json:
+              examples:
+                add new order:
+                  value: |-
+                    {
+                    "id": 10,
+                    "items": [...],
+                    "orderQuantity": 10,
+                    "orderTotal": 10000,
+                    "orderStatus"": "pending",
+                    "user_id": 1
+                    }
+      tags:
+        - Orders
+  /orders/update/{id}:
+    summary: update order with matching id
+    description: update items in order wit matching id in orders.json
+    put:
+      summary: update order with matching id
+      description: update items or status of order with matching id in orders.json
+      operationId: update_order
+      responses:
+        default:
+          description: Default error sample response
+          content:
+            application/json:
+              examples:
+                update order response:
+                  value: |-
+                    {
+                      "id": 10,
+                      "items": [...],
+                      "orderQuantity": 10,
+                      "orderTotal": 10000,
+                      "orderStatus"": "pending",
+                      "user_id": 1
+                    }
+      tags:
+        - Orders
+  /orders/delete/{id}:
+    summary: delete order with matching id
+    description: delete entire order with matching id in orders.json
+    delete:
+      summary: delete order with matching id
+      description: delete entire order with matching id in orders.json
+      operationId: delete_order
+      responses:
+        default:
+          description: Default error sample response
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                delete order response:
+                  value: deleted order {order_id}
+      tags:
+        - Orders
+  /inventory:
+    summary: get all inventory items
+    description: get all items from database
+    get:
+      summary: get all items in inventory
+      description: get all items in inventory from database
+      operationId: get_items
+      responses:
+        default:
+          description: Default error sample response
+          content:
+            application/json:
+              examples:
+                Get all items in inventory:
+                  value: |-
+                    {
+                     "items":
+                     [
+                      {"id": 1, "name": "potion", "price": 100, "department":{"department_id":1, "department":"health"}, "img_url": "string", stock:{
+                     "quantity":500,
+                     "available": true
+                    }}, {...}, {...}
+                     ]
+                    }
+      tags:
+        - Items
+  /inventory/{id}:
+    summary: get item with matching id
+    description: get item from database with matching id
+    get:
+      summary: get specific item
+      description: get specific item with matching item id from database
+      operationId: get_item_by_id
+      responses:
+        default:
+          description: Default error sample response
+          content:
+            application/json:
+              examples:
+                get item by id:
+                  value: >-
+                    {"id": 1, "name": "potion", "price": 100,
+                    "department":{"department_id":1, "department":"health"},
+                    "img_url": "string", stock:{
+                                         "quantity":500,
+                                         "available": true
+                                        }}
+      tags:
+        - Items
+    put:
+      summary: update item in inventory
+      description: update item in inventory in database
+      operationId: update_item_by_id
+      responses:
+        default:
+          description: Default error sample response
+          content:
+            application/json:
+              examples:
+                update item by id:
+                  value: '{ ... return newly updated item from database ...}'
+      tags:
+        - Items
+  /inventory/?{options}:
+    summary: get items with filter options
+    description: get items which match the filter options given as url parameters
+    get:
+      summary: get items filtered by options
+      description: get items from inventory filtered by url parameters
+      operationId: get_filtered_items
+      responses:
+        default:
+          description: Default error sample response
+          content:
+            application/json:
+              examples:
+                get filtered item /inventory/?department=health:
+                  value: >-
+                    {"id": 1, "name": "potion", "price": 100,
+                    "department":{"department_id":1, "department":"health"},
+                    "img_url": "string", stock:{
+                                         "quantity":500,
+                                         "available": true
+                                        },
+                    // all other items in health department
+
+                    }
+        tags:
+          - Items
+  /inventory/newitem:
+    summary: add new item to inventory
+    description: add new item item to database
+    post:
+      summary: add new item to inventory
+      description: add new item to inventory in database
+      operationId: add_new_item
+      responses:
+        default:
+          description: Default error sample response
+          content:
+            application/json:
+              examples:
+                POST new item to inventory:
+                  value: |-
+                    {
+                    // response: newly posted item
+                    id: int,
+                    name: "string",
+                    price: int,
+                    department:{
+                     department_id: int,
+                     department: "string"
+                    },
+                    stock:{
+                     quantity: int,
+                     available: boolean
+                    },
+                    img_url: "string"
+                    }
+      tags:
+        - Items
+  /cart:
+    summary: get all carts
+    description: get all carts from database
+    get:
+      summary: 'get all carts '
+      description: get all carts from database
+      operationId: get_all_carts
+      responses:
+        default:
+          description: Default error sample response
+          content:
+            application/json:
+              examples:
+                get all carts:
+                  value: |-
+                    [
+
+                     {
+                      items:[...],
+                      cartTotal: 1000,
+                      cartQuantity: 5
+                     }
+                    ]
+      tags:
+        - Carts
+  /cart/{userId}:
+    summary: get cart by user id
+    description: get cart by user id from database
+    get:
+      summary: get cart by id
+      description: 'get specific cart for user id '
+      operationId: get_cart_by_user_id
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - Carts
+    put:
+      summary: update specific cart by is
+      description: 'update specific users cart items '
+      operationId: update_cart_by_user_id
+      responses:
+        default:
+          description: Default error sample response
+          content:
+            application/json:
+              examples:
+                put cart data for specific user:
+                  value: '{... entire cart }'
+      tags:
+        - Carts
+  /users:
+    summary: get all users
+    description: retrieve all users from database
+    get:
+      summary: get all users
+      description: retrieve all users from database
+      operationId: get_all_users
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - Users
+  /users/{id}:
+    summary: get specific user
+    description: get specific user by user id from database
+    get:
+      summary: get specific user
+      description: get specific user data from database
+      operationId: get_user_by_id
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - Users
+    put:
+      summary: update specific user
+      description: update specific user by user id in database
+      operationId: update_user
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - Users
+    delete:
+      summary: delete user
+      description: delete specific user
+      operationId: delete_user_by_id
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - Users
+  /users/newuser:
+    summary: add new user
+    description: add new user to database
+    post:
+      summary: add new user
+      description: post new user to database
+      operationId: post_new_user
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - Users
+  /users/logout:
+    summary: logout user
+    description: revoke authentication from logged in user
+    get:
+      summary: log out user
+      description: log out currently authenticated user
+      operationId: logout_user
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - Users

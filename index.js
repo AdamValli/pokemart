@@ -10,7 +10,9 @@ app.use(express.json(), morgan("dev"));
 // routers config
 const userRouter = require("./userRouter");
 const inventoryRouter = require("./inventoryRouter");
+const cartRouter = require("./cartRouter");
 app.use("/users", userRouter);
+app.use("/carts", cartRouter);
 app.use("/inventory", inventoryRouter);
 
 

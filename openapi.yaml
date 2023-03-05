@@ -240,32 +240,64 @@ paths:
                     ]
       tags:
         - Carts
-  /cart/{userId}:
-    summary: get cart by user id
-    description: get cart by user id from database
+    /cart/newcart:
+    summary: initialise a new cart
+    description: initialise a new cart in database
+    post:
+      summary: 'create new cart'
+      description: create new cart in db
+      operationId: create_new_cart
+      responses: 200
+        default:
+          description: Default error sample response
+          content:
+            application/json:
+              examples:
+                create new cart:
+                  value: |-
+                    { "cart_id": 1}
+      tags:
+        - Carts
+
+  /cart/{cartId}:
+    summary: get cart by cart id
+    description: get cart by cart id from database
     get:
       summary: get cart by id
-      description: 'get specific cart for user id '
-      operationId: get_cart_by_user_id
+      description: 'get specific cart for id '
+      operationId: get_cart_by__id
       responses:
         default:
           description: Default error sample response
       tags:
         - Carts
     put:
-      summary: update specific cart by is
+      summary: update specific cart by id
       description: 'update specific users cart items '
-      operationId: update_cart_by_user_id
+      operationId: update_cart_by_id
       responses:
         default:
           description: Default error sample response
           content:
             application/json:
               examples:
-                put cart data for specific user:
+                put cart data for specific cart:
                   value: '{... entire cart }'
       tags:
         - Carts
+    /cart/{cartId}/checkout:
+    summary: checkout specific cart
+    description: execute cart by cart id to create an order and charge user
+    post:
+      summary: checkout cart by id
+      description: 'checkout specific cart for id '
+      operationId: checkout_cart_by__id
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - Carts
+
   /users:
     summary: get all users
     description: retrieve all users from database

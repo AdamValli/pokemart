@@ -29,6 +29,7 @@ ordersRouter.put("/:id", (req, res)=>{
 });
 
 // delete specific order by id
+// don't allow deleting orders? Keep record even if cancelled?
 ordersRouter.delete("/:id", (req, res)=>{
     const orderId = req.params.id;
     res.send(`deleting order ${orderId}.`);

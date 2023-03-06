@@ -1,6 +1,6 @@
 
 
-const { getAllUsers } = require("./postgres/userQueries");
+const { getAllUsers, getUserById } = require("./postgres/userQueries");
 
 const express = require("express");
 const userRouter = express.Router();
@@ -23,9 +23,22 @@ userRouter.get("/", async (req, res)=>{
 });
 
 // get specific user by id
-userRouter.get("/:id", (req, res)=>{
+userRouter.get("/:id", async (req, res)=>{
     const userId = req.params.id;
-    res.send(`user data for ${userId}`);
+
+    try {
+        const user = await getUserById(userId);
+
+        // failure
+        if(!user){
+            throw new Error("could not retrieve user with id " + userId);
+        }
+
+        res.json(user);
+
+    } catch (error) {
+        res.sendStatus(500);
+    }
 })
 
 // post new user

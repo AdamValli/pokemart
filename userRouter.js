@@ -1,6 +1,6 @@
 
 
-const { getAllUsers, getUserById } = require("./postgres/userQueries");
+const { getAllUsers, getUserById, addNewUser } = require("./postgres/userQueries");
 const { checkNewUserBody } = require("./middleware/userMiddleware");
 const express = require("express");
 const userRouter = express.Router();
@@ -42,9 +42,21 @@ userRouter.get("/:id", async (req, res)=>{
 })
 
 // post new user
-userRouter.post("/newuser", checkNewUserBody, (req, res)=>{
+userRouter.post("/newuser", checkNewUserBody, async (req, res)=>{
     const newUser = req.user;
-    res.json(newUser);
+    try {
+        const result = await addNewUser(newUser);
+
+        if(!result){
+            throw new Error("could not add user, query response empty.");
+        }
+
+        res.json(result);
+        
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
 });
 
 // update specific user by id

@@ -3,6 +3,7 @@ const pool = require("./postgres");
 
 
 // returns all users from users table
+// errors: could not retrieve users --> 500 internal server error
 const getAllUsers = async () => {
     const client = await pool.connect();
   
@@ -12,13 +13,14 @@ const getAllUsers = async () => {
       return rows;
     } catch (error) {
       console.log(error);
-      throw new Error(error);
+      res.status(500).send("Could not retrieve users.")
     } finally {
         client.release();
     }
   };
 
 // get specific user by id
+// errors: could not make query -> 500 internal server error
 const getUserById = async (userId) => {
     const client = await pool.connect();
     try {
@@ -29,7 +31,7 @@ const getUserById = async (userId) => {
     
     } catch (error) {
         console.log(error);
-        throw new Error("error in querying users table for id: " + userId);
+        res.status(500).send("error in querying users table for id: " + userId);
     } finally {
         client.release();
     }
@@ -38,6 +40,7 @@ const getUserById = async (userId) => {
 // add user to users table
 // user args assumed to be correct
 // RETURN: added user details
+// errors: could not add new user --> 500 internal server error
 const addNewUser = async (user) => {
     
     const { username, password, email, fname, lname, dob } = user;
@@ -56,7 +59,7 @@ const addNewUser = async (user) => {
         return rows
     } catch (error) {
         console.log(error);
-        res.sendStatus(500);
+        res.status(500).send("could not add new user");
         return;
     } finally {
         client.release();

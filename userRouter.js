@@ -6,6 +6,7 @@ const express = require("express");
 const userRouter = express.Router();
 
 // get all users
+// errors: could not find users --> 404 Not Found
 userRouter.get("/", async (req, res)=>{
     try {
         const users = await getAllUsers();
@@ -18,11 +19,12 @@ userRouter.get("/", async (req, res)=>{
         res.json(users);
 
     } catch (error) {
-        res.sendStatus(500);
+        res.sendStatus(404);
     }
 });
 
 // get specific user by id
+// errors: could not find user --> 404 Not Found
 userRouter.get("/:id", async (req, res)=>{
     const userId = req.params.id;
 
@@ -52,7 +54,7 @@ userRouter.post("/newuser", checkNewUserBody, async (req, res)=>{
         }
 
         res.json(result);
-        
+
     } catch (error) {
         console.log(error);
         res.sendStatus(500);

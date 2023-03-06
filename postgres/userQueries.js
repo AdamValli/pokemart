@@ -11,7 +11,7 @@ const getAllUsers = async () => {
     return rows;
   } catch (error) {
     console.log(error);
-    res.status(500).send("Could not retrieve users.");
+    throw new Error("Could not retrieve users.");
   } finally {
     client.release();
   }
@@ -29,7 +29,7 @@ const getUserById = async (userId) => {
     return rows;
   } catch (error) {
     console.log(error);
-    res.status(500).send("error in querying users table for id: " + userId);
+    throw new Error("error in querying users table for id: " + userId);
   } finally {
     client.release();
   }
@@ -57,7 +57,7 @@ const addNewUser = async (user) => {
     return rows;
   } catch (error) {
     console.log(error);
-    res.status(500).send("could not add new user");
+    throw new Error("could not add new user");
     return;
   } finally {
     client.release();
@@ -76,8 +76,20 @@ const updateUserById = async (updates, userId) => {
     await client.query("BEGIN");
 
     // update users set {updates.key} = {updates.value} where id = {userId}
+    for( let key in parsedUpdates){
+        await client.query(`UPDATE users SET ${key} = $1 WHERE id = $2`, [parsedUpdates[key], userId])
+    }
+    const results = await client.query(`select * from users where id = $1`, [userId]);
+
+    await client.query("COMMIT");
+
+    return results.rows;
   } catch (error) {
     await client.query("ROLLBACK");
+    console.log("--------- Error update user by id ---------");
+    console.log(error);
+    console.log("-------------------------------------------");
+    throw new Error(error);
   } finally {
     client.release();
   }
@@ -101,4 +113,4 @@ const parseUpdates = (updates) => {
   return newUpdates;
 };
 
-module.exports = { getAllUsers, getUserById, addNewUser };
+module.exports = { getAllUsers, getUserById, addNewUser, updateUserById };

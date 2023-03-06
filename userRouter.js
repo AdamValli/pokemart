@@ -1,6 +1,6 @@
 
 
-const { getAllUsers, getUserById, addNewUser } = require("./postgres/userQueries");
+const { getAllUsers, getUserById, addNewUser, updateUserById } = require("./postgres/userQueries");
 const { checkNewUserBody, checkUpdatesBody } = require("./middleware/userMiddleware");
 const express = require("express");
 const userRouter = express.Router();
@@ -62,11 +62,20 @@ userRouter.post("/newuser", checkNewUserBody, async (req, res)=>{
 });
 
 // update specific user by id
-userRouter.put("/:id", checkUpdatesBody, (req, res)=>{
+userRouter.put("/:id", checkUpdatesBody, async (req, res)=>{
     const userId = req.params.id;
     const updates = req.body;
-    console.log(req.updates)
-    res.json(req.updates)
+    try {
+        
+        const results = await updateUserById(updates, userId);
+        res.json(results);
+        return;
+    } catch (error) {
+        console.log(error)
+        res.status(500).send(error.message);
+        return;
+    }
+
 });
 
 // delete specific user by id

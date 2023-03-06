@@ -1,7 +1,7 @@
 
 
 const { getAllUsers, getUserById, addNewUser } = require("./postgres/userQueries");
-const { checkNewUserBody } = require("./middleware/userMiddleware");
+const { checkNewUserBody, checkUpdatesBody } = require("./middleware/userMiddleware");
 const express = require("express");
 const userRouter = express.Router();
 
@@ -62,10 +62,11 @@ userRouter.post("/newuser", checkNewUserBody, async (req, res)=>{
 });
 
 // update specific user by id
-userRouter.put("/:id", (req, res)=>{
+userRouter.put("/:id", checkUpdatesBody, (req, res)=>{
     const userId = req.params.id;
     const updates = req.body;
-    res.send(`updating ${userId} with updates: ${updates}`);
+    console.log(req.updates)
+    res.json(req.updates)
 });
 
 // delete specific user by id

@@ -52,7 +52,106 @@ const checkNewUserBody = (req, res, next) => {
   next();
 };
 
+// accepts multiple updates
+// errors: bad update posted --> 400
+const checkUpdatesBody = (req, res, next) => {
+  const updates = req.body;
+  const formattedUpdates = {};
+
+  // if username updating, check if username correctly formatted
+  // if password updating, check if password correctly formatted
+  // if fname / lname updating, check if fname / lname is correctly formatted
+  // if dob updating, check if dob correctly formatted
+  try {
+    if (updates.username) {
+      const isUsername = isUsernameCorrect(updates.username);
+      if (isUsername) formattedUpdates.username = isUsername;
+      else throw new Error("bad username");
+    }
+    if (updates.password) {
+      const isPassword = isPasswordCorrect(updates.password);
+      if (isPassword) formattedUpdates.password = isPassword;
+      else throw new Error("bad password");
+    }
+    if (updates.fname) {
+      const isFnameCorrect = isNameCorrect(updates.fname);
+      if (isFnameCorrect) formattedUpdates.fname = isFnameCorrect;
+      else throw new Error("bad fname");
+    }
+    if (updates.lname) {
+      const isLnameCorrect = isNameCorrect(updates.lname);
+      if (isLnameCorrect) formattedUpdates.fname = isLnameCorrect;
+      else throw new Error("bad lname");
+    }
+    if (updates.dob) {
+      const isDob = isDobCorrect(updates.dob);
+      if (isDob) formattedUpdates.dob = isDob;
+      else throw new Error("bad DOB");
+    }
+    if (updates.email) {
+        const isEmail = isEmailCorrect(updates.email);
+        if (isEmail) formattedUpdates.email = isEmail;
+        else throw new Error("bad email address");
+      }
+  
+
+    if (!formattedUpdates) throw new Error("bad updates or nothing to update");
+  } catch (error) {
+    console.log("--------- Error: check update body ----------");
+    console.log(error);
+    console.log("---------------------------------------------");
+    res.status(400).send(error.message);
+    return;
+  }
+
+  req.updates = formattedUpdates;
+
+  next();
+};
+
+// false if email is incorrect
+// return email if correct
+const isEmailCorrect = (email) => {
+    var emailRegex = new RegExp(/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/, "g");
+    const isCorrect = emailRegex.test(email);
+
+    if(!isCorrect) return false;
+
+    return email;
+};
+
+
+// return false if DOB not correctly formatted
+// return DOB if correctly formatted
+// TODO: Doesn't check 00-00-XXXX
+const isDobCorrect = (dob) => {
+    var dobRegex = new RegExp(/^(\d\d-\d\d-\d\d\d\d)$/, "g");
+
+  const isCorrect = dobRegex.test(dob);
+
+  if (!isCorrect) return false;
+
+  return dob;
+};
+
+// return false if name is incorrectly formatted (has nums, is not string)
+// returns name is correct
+const isNameCorrect = (name) => {
+  const isNotString = !(typeof name === "string") ? true : false;
+  var hasNumRegex = new RegExp(/\d/, "g");
+  const hasNum = hasNumRegex.test(name);
+
+  console.log(`${name} has nums: ${hasNum[0]}`);
+  if (isNotString || hasNum) {
+    return false;
+  }
+
+  return name;
+};
+
 // TODO: use regex
+// return false if username is incorrectly formatted (has whitespace)
+// return formatted username for sb : String
 const isUsernameCorrect = (username) => {
   const hasSpace = username.trim().includes(" ");
 
@@ -60,7 +159,7 @@ const isUsernameCorrect = (username) => {
     return false;
   }
 
-  return true;
+  return username.trim();
 };
 
 // true if password is correctly formatted
@@ -72,7 +171,7 @@ const isPasswordCorrect = (password) => {
     return false;
   }
 
-  return true;
+  return password;
 };
 
-module.exports = { checkNewUserBody };
+module.exports = { checkNewUserBody, checkUpdatesBody };

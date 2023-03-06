@@ -1,7 +1,7 @@
 
 
 const { getAllUsers, getUserById } = require("./postgres/userQueries");
-
+const { checkNewUserBody } = require("./middleware/userMiddleware");
 const express = require("express");
 const userRouter = express.Router();
 
@@ -37,14 +37,14 @@ userRouter.get("/:id", async (req, res)=>{
         res.json(user);
 
     } catch (error) {
-        res.sendStatus(500);
+        res.sendStatus(404);
     }
 })
 
 // post new user
-userRouter.post("/newuser", (req, res)=>{
-    const newUser = req.body;
-    res.send("added new user " + newUser.username);
+userRouter.post("/newuser", checkNewUserBody, (req, res)=>{
+    const newUser = req.user;
+    res.json(newUser);
 });
 
 // update specific user by id

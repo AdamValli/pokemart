@@ -4,7 +4,7 @@ const express = require("express");
 const app = express();
 
 // server config
-app.use(express.json(), morgan("dev"));
+app.use(express.json(), express.urlencoded({extended: true}), morgan("dev"));
 
 
 // routers config

@@ -1,6 +1,6 @@
 
 
-const { getAllUsers, getUserById, addNewUser, updateUserById } = require("./postgres/userQueries");
+const { getAllUsers, getUserById, addNewUser, updateUserById, deleteUserById } = require("./postgres/userQueries");
 const { checkNewUserBody, checkUpdatesBody } = require("./middleware/userMiddleware");
 const express = require("express");
 const userRouter = express.Router();
@@ -79,9 +79,23 @@ userRouter.put("/:id", checkUpdatesBody, async (req, res)=>{
 });
 
 // delete specific user by id
-userRouter.delete("/:id", (req, res)=>{
+userRouter.delete("/:id", async (req, res)=>{
     const userId = req.params.id;
-    res.send(`deleting user ${userId}.`);
+
+    try {
+        const user = await deleteUserById(userId);
+
+        // failure
+        if(!user){
+            throw new Error("could not delete user with id " + userId);
+        }
+
+        res.json(user);
+        return;
+    } catch (error) {
+        res.sendStatus(404);
+        return;
+    }
 });
 
 

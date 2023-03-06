@@ -95,6 +95,23 @@ const updateUserById = async (updates, userId) => {
   }
 };
 
+
+const deleteUserById = async (userId) => {
+    const client = await pool.connect();
+    try {
+      const { rows } = await client.query(`DELETE FROM users WHERE id = $1 RETURNING id, username`, [
+        userId
+      ]);
+  
+      return rows;
+    } catch (error) {
+      console.log(error);
+      throw new Error("error in deleting user in users table for id: " + userId);
+    } finally {
+      client.release();
+    }
+  }
+
 // return updates object with key-values suitable for db
 const parseUpdates = (updates) => {
   const newUpdates = {};
@@ -113,4 +130,4 @@ const parseUpdates = (updates) => {
   return newUpdates;
 };
 
-module.exports = { getAllUsers, getUserById, addNewUser, updateUserById };
+module.exports = { getAllUsers, getUserById, addNewUser, updateUserById, deleteUserById };

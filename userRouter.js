@@ -1,12 +1,25 @@
 
 
+const { getAllUsers } = require("./postgres");
 
 const express = require("express");
 const userRouter = express.Router();
 
 // get all users
-userRouter.get("/", (req, res)=>{
-    res.send("all users")
+userRouter.get("/", async (req, res)=>{
+    try {
+        const users = await getAllUsers();
+
+        // failure
+        if(!users){
+            throw new Error("could not retrieve users")
+        }
+
+        res.json(users);
+
+    } catch (error) {
+        res.sendStatus(500);
+    }
 });
 
 // get specific user by id

@@ -84,7 +84,8 @@ userRouter.delete("/:id", async (req, res)=>{
 
     try {
         const user = await deleteUserById(userId);
-
+        const test = user ? true: false;
+        console.log(test);
         // failure
         if(!user){
             throw new Error("could not delete user with id " + userId);

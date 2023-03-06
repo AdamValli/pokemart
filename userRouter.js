@@ -1,6 +1,6 @@
 
 
-const { getAllUsers } = require("./postgres");
+const { getAllUsers } = require("./postgres/userQueries");
 
 const express = require("express");
 const userRouter = express.Router();

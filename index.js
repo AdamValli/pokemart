@@ -5,7 +5,7 @@ const morgan = require("morgan");
 const express = require("express");
 const app = express();
 
-const { authUser } = require("./helpers/authHelpers");
+const { authUser, serializeUser, deserializeUser } = require("./helpers/passportHelpers");
 const { printDebug } = require("./helpers/debugHelpers");
 
 
@@ -57,37 +57,39 @@ app.use(passport.session());
 // add user to session object
 
 passport.use(new LocalStrategy(authUser));
+passport.serializeUser(serializeUser);
+passport.deserializeUser(deserializeUser);
 
-passport.serializeUser((user, done)=>{
-    printDebug("Serializing User: ", user);
+// passport.serializeUser((user, done)=>{
+//     printDebug("Serializing User: ", user);
 
-    return done(null, user.id);
-});
+//     return done(null, user.id);
+// });
 
-// get user data from serialized user, by id 
-// adds to req.user with additional info
-passport.deserializeUser((id, done)=>{
+// // get user data from serialized user, by id 
+// // adds to req.user with additional info
+// passport.deserializeUser((id, done)=>{
 
-    printDebug("Deserializing User Id: ", id);
-    try {
+//     printDebug("Deserializing User Id: ", id);
+//     try {
         
-        // find user by id
-        const found = {
-            user: {
-                id: 1,
-                username: "ash1"
-            },
-            data: {
-                first_name: "ash",
-                last_name: "ketchum"
-            }
-        }
-        console.log(found);
-        return done(null, {...found});
-    } catch (error) {
-        return done(error, false);        
-    }
-});
+//         // find user by id
+//         const found = {
+//             user: {
+//                 id: 1,
+//                 username: "ash1"
+//             },
+//             data: {
+//                 first_name: "ash",
+//                 last_name: "ketchum"
+//             }
+//         }
+//         console.log(found);
+//         return done(null, {...found});
+//     } catch (error) {
+//         return done(error, false);        
+//     }
+// });
 
 
 // routers config
@@ -107,9 +109,7 @@ app.use("/test", testRouter);
 app.get("/home", (req, res) => {
   console.log(req.session);
   if (req.isAuthenticated()) {
-    res.send(
-      "Only authenticated personnel have access to this route... and you're one of them! (For now.)"
-    );
+    res.json(req.user);
     return;
   }
 

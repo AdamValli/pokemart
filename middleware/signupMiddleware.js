@@ -4,7 +4,9 @@ const {
   isDobCorrect,
   isNameCorrect,
 } = require("../helpers/userHelpers");
-const { getUserByUsername, getUserByEmail } = require("../postgres/userQueries");
+const { getUserByUsername, getUserByEmail, addNewUser } = require("../postgres/userQueries");
+const bcrypt = require("bcrypt");
+
 
 const checkSignUpPostBody = (req, res, next) => {
   const body = req.body;
@@ -88,4 +90,29 @@ const checkUserExists = async (req, res, next)=>{
     }
 }
 
-module.exports = {checkSignUpPostBody, checkUserExists};
+const registerUser = async (req, res, next) => {
+    
+    try {
+        // encrypt password 
+        const salt = await bcrypt.genSalt(10);
+        const encrypted = await bcrypt.hash(req.signupUser.password, salt);
+
+        const user = {
+            ...req.signupUser,
+            password: encrypted
+        };
+        
+
+        // add user to db
+        const result = await addNewUser(user);
+        
+        // return added user
+        req.result = result;
+
+        next();
+    } catch (error) {
+        res.status(500).send("Could not add user :(");
+    }
+};
+
+module.exports = {checkSignUpPostBody, checkUserExists, registerUser};

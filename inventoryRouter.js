@@ -3,7 +3,7 @@
 
 const express = require("express");
 const { checkNewItemBody, checkUpdatesBody } = require("./middleware/inventoryMiddleware");
-const { getAllItems, getItemById, addNewItem, updateitemById, updateItemById } = require("./postgres/itemQueries");
+const { getAllItems, getItemById, addNewItem, updateitemById, updateItemById, deleteItemById } = require("./postgres/itemQueries");
 const inventoryRouter = express.Router();
 
 // get all items in inventory
@@ -78,9 +78,22 @@ inventoryRouter.put("/:id", checkUpdatesBody, async (req, res)=>{
 });
 
 // delete specific item by id
-inventoryRouter.delete("/:id", (req, res)=>{
+inventoryRouter.delete("/:id", async (req, res)=>{
     const itemId = req.params.id;
-    res.send(`deleting user ${itemId}.`);
+
+    try {
+        const item = await deleteItemById(itemId);
+        // failure
+        if(!item){
+            throw new Error("could not delete item with id " + itemId);
+        }
+
+        res.json(item);
+        return;
+    } catch (error) {
+        res.sendStatus(404);
+        return;
+    }
 });
 
 

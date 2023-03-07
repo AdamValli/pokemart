@@ -100,10 +100,10 @@ const updateItemById = async (updates, itemId) => {
 };
 
 
-const deleteitemById = async (itemId) => {
+const deleteItemById = async (itemId) => {
     const client = await pool.connect();
     try {
-      const { rows } = await client.query(`DELETE FROM items WHERE id = $1 RETURNING id, itemname`, [
+      const { rows } = await client.query(`DELETE FROM items WHERE id = $1 RETURNING id, name`, [
         itemId
       ]);
   
@@ -117,4 +117,4 @@ const deleteitemById = async (itemId) => {
   }
 
 
-module.exports = { getAllItems, getItemById, addNewItem, updateItemById, deleteitemById };
+module.exports = { getAllItems, getItemById, addNewItem, updateItemById, deleteItemById };

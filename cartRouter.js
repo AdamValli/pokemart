@@ -2,23 +2,49 @@
 
 
 const express = require("express");
+const { getAllCarts, getCartById } = require("./postgres/cartQueries");
 const cartRouter = express.Router();
 
 // get all carts
-cartRouter.get("/", (req, res)=>{
-    res.send("all carts")
+cartRouter.get("/", async (req, res)=>{
+    try {
+        const carts = await getAllCarts();
+
+        // failure
+        if(!carts){
+            throw new Error("could not retrieve carts")
+        }
+
+        res.json(carts);
+
+    } catch (error) {
+        res.sendStatus(404);
+    }
 });
 
 // get specific cart by id
-cartRouter.get("/:id", (req, res)=>{
+cartRouter.get("/:id", async (req, res)=>{
     const cartId = req.params.id;
-    res.send(`cart data for ${cartId}`);
+
+    try {
+        const cart = await getCartById(cartId);
+
+        // failure
+        if(!cart){
+            throw new Error("could not retrieve cart with id " + cartId);
+        }
+
+        res.json(cart);
+
+    } catch (error) {
+        res.sendStatus(404);
+    }
 })
 
 // post new cart
 cartRouter.post("/newcart", (req, res)=>{
-    const userId = req.body;
-    res.send("added new cart for user " + userId);
+    const cartId = req.body;
+    res.send("added new cart for cart " + cartId);
 });
 
 // update specific cart by id

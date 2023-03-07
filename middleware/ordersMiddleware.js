@@ -1,48 +1,27 @@
-// expected body: {}
-//  items: [id, id, ...],
-//  status: "string",
+
+const { printDebug } = require("../helpers/debugHelpers");
+const { makeQuery } = require("../postgres/queries");
+
 //  userId: integer
-const checkNewOrderBody = (req, res, next) => {
+const checkNewOrderBody = async (req, res, next) => {
   const order = req.body;
   try {
-    if (order.items) {
-      if (order.items.length === 0) {
-        const items = order.items;
-      } else {
-        const items = false;
-      }
-    } else {
-      const items = false;
-    }
-    const items = order.items ? order.items : false;
-    console.log(`items? ${items}`);
-    const status = order.status
-      ? order.status.toString().toLowerCase()
-      : "pending";
     const userId = order.userId ? parseInt(order.userId) : false;
-    const total_item_price = order.total_item_price
-      ? parseInt(order.total_item_price)
-      : 0;
-    const total_quantity = order.total_quantity
-      ? parseInt(order.total_quantity)
-      : 0;
-    const shipping_price = order.shipping_price
-      ? parseInt(order.shipping_price)
-      : 0;
-
     if (!userId) {
       throw new Error("missing user id");
     }
+    const items = order.items ? order.items : false;
 
-    // if(!order.items || !order.status || !order.userId){
-    //     throw new Error("missing key in new order");
-    // }
-    // const status = order.status.toString().toLowerCase();
-    // const statuses = ["complete", "pending", "cancelled"];
+    const total_quantity = getTotalQuantity(order);
+    const total_item_price = await getTotalPrice(order);
 
-    // if(!statuses.includes(status)){
-    //     throw new Error("order status must be COMPLETE, PENDING or CANCELLED");
-    // }
+    const status = order.status
+      ? order.status.toString().toLowerCase()
+      : "pending";
+
+      const shipping_price = order.shipping_price
+      ? parseInt(order.shipping_price)
+      : 0;
 
     const newOrder = {
       items,
@@ -60,6 +39,39 @@ const checkNewOrderBody = (req, res, next) => {
   }
 
   next();
+};
+
+const getTotalQuantity = (order) => {
+  let total_quantity = 0;
+  const items = order.items ? order.items : false;
+
+  if (items) {
+    total_quantity = items.length;
+  } else {
+    total_quantity = parseInt(order.total_quantity);
+  }
+  return total_quantity;
+};
+
+// if items, get items and return sum of price
+const getTotalPrice = async (order) => {
+  const items = order.items ? order.items : false;
+  let sum = 0;
+
+  if (order.total_item_price) {
+    return parseInt(order.total_item_price);
+  }
+
+  if (items) {
+    for (let id of items) {
+      const results = await makeQuery(
+        `SELECT price FROM items WHERE id = ${id}`
+      );
+      let price = results[0].price;
+      sum = sum + price;
+    }
+  }
+  return sum;
 };
 
 module.exports = { checkNewOrderBody };

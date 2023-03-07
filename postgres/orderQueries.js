@@ -1,3 +1,4 @@
+const { printDebug } = require("../helpers/debugHelpers");
 const pool = require("./postgres");
 
 // returns all orders from orders table
@@ -39,7 +40,10 @@ const getOrderById = async (orderId) => {
 const createNewOrder = async (order) => {
   console.log("creating order...")
   const { items, userId, status, total_item_price, total_quantity, shipping_price } = order;
-  console.log(order)
+  printDebug(
+    "createNewOrder: order received",
+    order
+  )
   const client = await pool.connect();
 
   // 1. create new order in orders
@@ -58,11 +62,21 @@ const createNewOrder = async (order) => {
     );
 
     console.log(`order_id: ${rows[0].id}`);
+    
+    // add orders with orders sent
+    if(items){
+      const orderId = rows[0].id;
+      for(let i of items){
+        await client.query("INSERT INTO orders_items VALUES ($1, $2);", [orderId, i]);
+      }
+    }
+
+    const results = await client.query("SELECT * FROM orders WHERE user_id = $1", [userId]);
 
     
     await client.query("COMMIT");
 
-    return rows;
+    return results.rows;
   } catch (error) {
     await client.query("ROLLBACK");
     console.log(error);

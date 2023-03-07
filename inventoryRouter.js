@@ -36,7 +36,6 @@ inventoryRouter.get("/:id", async (req, res)=>{
         if(item.length < 1){
             throw new Error("could not retrieve item with id " + itemId);
         }
-
         res.json(item);
 
     } catch (error) {

@@ -2,6 +2,7 @@
 
 
 const express = require("express");
+const { printDebug } = require("./helpers/debugHelpers");
 const { checkNewOrderBody } = require("./middleware/ordersMiddleware");
 const { getAllOrders, getOrderById, addNeworder, addNewOrder, createNewOrder } = require("./postgres/orderQueries");
 const ordersRouter = express.Router();
@@ -35,10 +36,8 @@ ordersRouter.get("/:id", async (req, res)=>{
 // create new empty order for user id
 ordersRouter.post("/neworder", checkNewOrderBody, async (req, res)=>{
     const neworder = req.newOrder;
-    console.log(neworder)
     try {
         const results = await createNewOrder(neworder);
-
         res.json(results);
     } catch (error) {
         console.log(error)

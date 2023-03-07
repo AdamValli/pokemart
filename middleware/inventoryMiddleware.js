@@ -1,32 +1,25 @@
 // must contain name
-// if correct, adds req.user with formatted user details
-// TODO: format DOB str --> suitable for DB!
+// if correct, adds req.newItem with formatted item details
 const checkNewItemBody = (req, res, next) => {
   const body = req.body;
+  let itemName = body.name;
+  let newStock = body.stock;
+  let newPrice = body.price;
+  let newDescription = body.description;
+  console.log(`${typeof newStock}, ${typeof newPrice}`)
   try {
 
     // check mandatory keys present
-    if (!body.name) {
+    if (!itemName) {
       throw new Error("missing data for new item");
     }
     
-    // check mandatory values in correct format
-
-    // if optional keys, check in correct format
-    if (
-      !isNameCorrect(body.name) ||
-      !isPasswordCorrect(body.password)
-    ) {
-      throw new Error(
-        "Username or Password is bad form. Please ensure username has no whitespaces and password is at least 5 characters."
-      );
-    }
-
-    if (!body.email.includes("@")) {
-      throw new Error("Email is badly formatted.");
-    }
+    // if(newStock === "NaN" || newPrice === "NaN"){
+    //   throw new Error("stock or price is not a number!");
+    // }
+    
   } catch (error) {
-    console.log("--------------- new user body error ---------------");
+    console.log("--------------- new item error ---------------");
     console.log("body: ");
     console.table(body);
     console.log("error: ");
@@ -37,16 +30,14 @@ const checkNewItemBody = (req, res, next) => {
   }
 
   // add new formatted item to req
-  const formattedUser = {
-    username: body.username.trim(),
-    password: body.password,
-    email: body.email,
-    fname: body.fname,
-    lname: body.lname,
-    dob: body.dob,
+  const formattedItem = {
+    name: body.name.trim().toLowerCase(),
+    stock: newStock ? parseInt(newStock): 0,
+    price: newPrice ? parseInt(newPrice) : 0,
+    description: newDescription ? newDescription.toString() : null, 
   };
 
-  req.user = formattedUser;
+  req.newItem = formattedItem;
 
   next();
 };
@@ -107,18 +98,5 @@ const checkUpdatesBody = (req, res, next) => {
   next();
 };
 
-// false if email is incorrect
-// return email if correct
-const isEmailCorrect = (email) => {
-  var emailRegex = new RegExp(
-    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/,
-    "g"
-  );
-  const isCorrect = emailRegex.test(email);
 
-  if (!isCorrect) return false;
-
-  return email;
-};
-
-module.exports = { checkNewUserBody, checkUpdatesBody };
+module.exports = { checkUpdatesBody, checkNewItemBody };

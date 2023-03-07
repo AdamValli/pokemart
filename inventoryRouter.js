@@ -2,6 +2,7 @@
 
 
 const express = require("express");
+const { checkNewItemBody } = require("./middleware/inventoryMiddleware");
 const { getAllItems, getItemById, addNewItem } = require("./postgres/itemQueries");
 const inventoryRouter = express.Router();
 
@@ -32,21 +33,21 @@ inventoryRouter.get("/:id", async (req, res)=>{
         const item = await getItemById(itemId);
 
         // failure
-        if(!item){
+        if(item.length < 1){
             throw new Error("could not retrieve item with id " + itemId);
         }
 
         res.json(item);
 
     } catch (error) {
-        res.sendStatus(404);
+        res.status(404).send(error.message);
     }
 })
 
 // post new item to db
 // CREATE ITEM : { ... IN } AND PASS TO GETITEMBYID()
-inventoryRouter.post("/newitem", async (req, res)=>{
-    const newItem = req.body;
+inventoryRouter.post("/newitem", checkNewItemBody,  async (req, res)=>{
+    const newItem = req.newItem;
 
     try {
         const result = await addNewItem(newItem);

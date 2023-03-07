@@ -41,19 +41,22 @@ const getItemById = async (itemId) => {
 // errors: could not add new item --> 500 internal server error
 
 const addNewItem = async (item) => {
-  const { itemname, password, email, fname, lname, dob } = item;
+  const { name, stock, price, description } = item;
   const client = await pool.connect();
 
   try {
+    console.log(`inserting { ${name}, ${stock}, ${price}, ${description} into ITEMS}`)
     const { rows } = await client.query(
       `INSERT INTO items 
-        (itemname, password, email, first_name, last_name, date_of_birth)
+        (name, stock, price, description)
         VALUES
-        ($1, $2, $3, $4, $5, $6)
-        RETURNING id, itemname;
+        ($1, $2, $3, $4)
+        RETURNING *;
         `,
-      [itemname, password, email, fname, lname, dob]
+      [name, stock, price, description]
     );
+
+    
 
     return rows;
   } catch (error) {

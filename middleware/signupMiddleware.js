@@ -4,6 +4,7 @@ const {
   isDobCorrect,
   isNameCorrect,
 } = require("../helpers/userHelpers");
+const { getUserByUsername } = require("../postgres/userQueries");
 
 const checkSignUpPostBody = (req, res, next) => {
   const body = req.body;
@@ -65,4 +66,21 @@ const checkSignUpPostBody = (req, res, next) => {
   }
 };
 
-module.exports = {checkSignUpPostBody};
+
+const checkUserExists = async (req, res, next)=>{
+    const {username} = req.signupUser;
+
+    try {
+        const found = await getUserByUsername(username);
+
+        if(found.length > 0){
+            throw new Error("Username already exists.");
+        }
+
+        next();
+    } catch (error) {
+        res.status(400).send(error.message);
+    }
+}
+
+module.exports = {checkSignUpPostBody, checkUserExists};

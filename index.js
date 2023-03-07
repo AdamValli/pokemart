@@ -5,6 +5,10 @@ const morgan = require("morgan");
 const express = require("express");
 const app = express();
 
+const { authUser } = require("./helpers/authHelpers");
+const { printDebug } = require("./helpers/debugHelpers");
+
+
 // server config
 app.use(express.json(), express.urlencoded({ extended: true }), morgan("dev"));
 
@@ -32,25 +36,28 @@ app.use(
 
 app.use(passport.initialize());
 app.use(passport.session());
-passport.use(new LocalStrategy((username, password, done)=>{
+// passport.use(new LocalStrategy((username, password, done)=>{
     
-    const found = {
-        id: 1,
-        username: "ash1",
-        password: "123"
-    }
+//     const found = {
+//         id: 1,
+//         username: "ash1",
+//         password: "123"
+//     }
     
-    // successful authentication
-    if(username === found.username && password === found.password){
-       return done(null, {id: found.id, username: found.username})
-    } else {
-        return done(null, false);
-    }
+//     // successful authentication
+//     if(username === found.username && password === found.password){
+//        return done(null, {id: found.id, username: found.username})
+//     } else {
+//         return done(null, false);
+//     }
 
-    // error
-}));
+//     // error
+// }));
 
 // add user to session object
+
+passport.use(new LocalStrategy(authUser));
+
 passport.serializeUser((user, done)=>{
     printDebug("Serializing User: ", user);
 
@@ -89,7 +96,6 @@ const inventoryRouter = require("./inventoryRouter");
 const cartRouter = require("./cartRouter");
 const ordersRouter = require("./ordersRouter");
 const loginRouter = require("./loginRouter");
-const { printDebug } = require("./helpers/debugHelpers");
 const testRouter = require("./testRouter");
 app.use("/users", userRouter);
 app.use("/carts", cartRouter);

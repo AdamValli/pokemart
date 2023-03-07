@@ -2,23 +2,48 @@
 
 
 const express = require("express");
+const { checkNewOrderBody } = require("./middleware/ordersMiddleware");
+const { getAllOrders, getOrderById, addNeworder, addNewOrder, createNewOrder } = require("./postgres/orderQueries");
 const ordersRouter = express.Router();
 
+
+
+
+
 // get all orders
-ordersRouter.get("/", (req, res)=>{
-    res.send("all orders")
+ordersRouter.get("/", async (req, res)=>{
+    try {
+        const results = await getAllOrders();
+        res.json(results);
+    } catch (error) {
+        res.sendStatus(500);
+    }
 });
 
 // get specific order by id
-ordersRouter.get("/:id", (req, res)=>{
+ordersRouter.get("/:id", async (req, res)=>{
     const orderId = req.params.id;
-    res.send(`order data for ${orderId}`);
+    try {
+        const results = await getOrderById(orderId);
+
+        res.json(results);
+    } catch (error) {
+        res.sendStatus(500);
+    }
 })
 
-// post new order
-ordersRouter.post("/neworder", (req, res)=>{
-    const neworder = req.body;
-    res.send("added new order " + neworder.ordername);
+// create new empty order for user id
+ordersRouter.post("/neworder", checkNewOrderBody, async (req, res)=>{
+    const neworder = req.newOrder;
+    console.log(neworder)
+    try {
+        const results = await createNewOrder(neworder);
+
+        res.json(results);
+    } catch (error) {
+        console.log(error)
+        res.sendStatus(500);
+    }
 });
 
 // update specific order by id

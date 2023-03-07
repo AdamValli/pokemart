@@ -134,6 +134,21 @@ const getUserByUsername = async (username) => {
   }
 };
 
+const getUserByEmail = async (email) => {
+  const client = await pool.connect();
+  try {
+    const results = await client.query(
+      `SELECT id, username, password FROM users WHERE email = $1`,
+      [email]
+    );
+      printDebug("get user by email", results.rows);
+    return results.rows;
+  } catch (error) {
+    throw new Error("Could not find email " + email);
+  } finally {
+    client.release();
+  }
+};
 // return updates object with key-values suitable for db
 const parseUpdates = (updates) => {
   const newUpdates = {};
@@ -159,4 +174,5 @@ module.exports = {
   updateUserById,
   deleteUserById,
   getUserByUsername,
+  getUserByEmail
 };

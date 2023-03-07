@@ -1,3 +1,4 @@
+const { printDebug } = require("../helpers/debugHelpers");
 const pool = require("./postgres");
 
 // returns all users from users table
@@ -76,10 +77,15 @@ const updateUserById = async (updates, userId) => {
     await client.query("BEGIN");
 
     // update users set {updates.key} = {updates.value} where id = {userId}
-    for( let key in parsedUpdates){
-        await client.query(`UPDATE users SET ${key} = $1 WHERE id = $2`, [parsedUpdates[key], userId])
+    for (let key in parsedUpdates) {
+      await client.query(`UPDATE users SET ${key} = $1 WHERE id = $2`, [
+        parsedUpdates[key],
+        userId,
+      ]);
     }
-    const results = await client.query(`select * from users where id = $1`, [userId]);
+    const results = await client.query(`select * from users where id = $1`, [
+      userId,
+    ]);
 
     await client.query("COMMIT");
 
@@ -95,22 +101,38 @@ const updateUserById = async (updates, userId) => {
   }
 };
 
-
 const deleteUserById = async (userId) => {
-    const client = await pool.connect();
-    try {
-      const { rows } = await client.query(`DELETE FROM users WHERE id = $1 RETURNING id, username`, [
-        userId
-      ]);
-  
-      return rows;
-    } catch (error) {
-      console.log(error);
-      throw new Error("error in deleting user in users table for id: " + userId);
-    } finally {
-      client.release();
-    }
+  const client = await pool.connect();
+  try {
+    const { rows } = await client.query(
+      `DELETE FROM users WHERE id = $1 RETURNING id, username`,
+      [userId]
+    );
+
+    return rows;
+  } catch (error) {
+    console.log(error);
+    throw new Error("error in deleting user in users table for id: " + userId);
+  } finally {
+    client.release();
   }
+};
+
+const getUserByUsername = async (username) => {
+  const client = await pool.connect();
+  try {
+    const results = await client.query(
+      `SELECT id, username, password FROM users WHERE username = $1`,
+      [username]
+    );
+      printDebug("get user by username", results.rows);
+    return results.rows;
+  } catch (error) {
+    throw new Error("Could not find user " + username);
+  } finally {
+    client.release();
+  }
+};
 
 // return updates object with key-values suitable for db
 const parseUpdates = (updates) => {
@@ -130,4 +152,11 @@ const parseUpdates = (updates) => {
   return newUpdates;
 };
 
-module.exports = { getAllUsers, getUserById, addNewUser, updateUserById, deleteUserById };
+module.exports = {
+  getAllUsers,
+  getUserById,
+  addNewUser,
+  updateUserById,
+  deleteUserById,
+  getUserByUsername,
+};

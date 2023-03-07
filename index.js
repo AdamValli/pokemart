@@ -90,12 +90,13 @@ const cartRouter = require("./cartRouter");
 const ordersRouter = require("./ordersRouter");
 const loginRouter = require("./loginRouter");
 const { printDebug } = require("./helpers/debugHelpers");
+const testRouter = require("./testRouter");
 app.use("/users", userRouter);
 app.use("/carts", cartRouter);
 app.use("/inventory", inventoryRouter);
 app.use("/orders", ordersRouter);
 app.use("/login", loginRouter);
-
+app.use("/test", testRouter);
 // routes
 app.get("/home", (req, res) => {
   console.log(req.session);
@@ -108,6 +109,7 @@ app.get("/home", (req, res) => {
 
   res.redirect("/login");
 });
+
 
 // -------- //
 const PORT = process.env.PORT || 8080;

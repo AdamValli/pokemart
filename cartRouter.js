@@ -2,7 +2,7 @@
 
 
 const express = require("express");
-const { getAllCarts, getCartById, updateCartById } = require("./postgres/cartQueries");
+const { getAllCarts, getCartById, updateCartById, deleteCartById } = require("./postgres/cartQueries");
 const cartRouter = express.Router();
 
 // get all carts
@@ -59,9 +59,14 @@ cartRouter.put("/:id", async (req, res)=>{
 });
 
 // delete specific cart by id
-cartRouter.delete("/:id", (req, res)=>{
+cartRouter.delete("/:id", async (req, res)=>{
     const cartId = req.params.id;
-    res.send(`deleting cart ${cartId}.`);
+    try {
+        const results = await deleteCartById(cartId);
+        res.json(results)
+    } catch (error) {
+        res.sendStatus(500);
+    }
 });
 
 

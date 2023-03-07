@@ -103,12 +103,18 @@ const updateCartById = async (updates, cartId) => {
 const deleteCartById = async (cartId) => {
     const client = await pool.connect();
     try {
-      const { rows } = await client.query(`DELETE FROM Carts WHERE id = $1 RETURNING id, name`, [
+
+      await client.query("BEGIN");
+
+      await client.query("DELETE FROM carts_items WHERE cart_id = $1", [cartId]);
+
+      const { rows } = await client.query(`DELETE FROM carts WHERE id = $1 RETURNING id, user_id`, [
         cartId
       ]);
-  
+      await client.query("COMMIT")
       return rows;
     } catch (error) {
+      await client.query("ROLLBACK")
       console.log(error);
       throw new Error("error in deleting cart in Carts table for id: " + cartId);
     } finally {

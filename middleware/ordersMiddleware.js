@@ -1,4 +1,3 @@
-
 const { printDebug } = require("../helpers/debugHelpers");
 const { makeQuery } = require("../postgres/queries");
 
@@ -12,24 +11,24 @@ const checkNewOrderBody = async (req, res, next) => {
     }
     const items = order.items ? order.items : false;
 
-    const total_quantity = getTotalQuantity(order);
-    const total_item_price = await getTotalPrice(order);
+    // const total_quantity = getTotalQuantity(order);
+    // const total_item_price = await getTotalPrice(order);
 
     const status = order.status
       ? order.status.toString().toLowerCase()
       : "pending";
 
-      const shipping_price = order.shipping_price
-      ? parseInt(order.shipping_price)
-      : 0;
+    // const shipping_price = order.shipping_price
+    //   ? parseInt(order.shipping_price)
+    //   : 0;
 
     const newOrder = {
       items,
       status,
       userId,
-      total_item_price,
-      total_quantity,
-      shipping_price,
+    //   total_item_price,
+    //   total_quantity,
+    //   shipping_price,
     };
 
     req.newOrder = newOrder;
@@ -39,6 +38,49 @@ const checkNewOrderBody = async (req, res, next) => {
   }
 
   next();
+};
+
+// req.body: { items: [id, id, id... ], status: string }
+// can only update items and status
+const checkUpdatesBody = async (req, res, next) => {
+  const updates = req.body;
+  try {
+    let formattedUpdates = {};
+    
+    // add status if status given
+    if (updates.status) {
+      const statuses = ["complete", "pending", "cancelled"];
+      if (!statuses.includes(updates.status.toLowerCase())) {
+        throw new Error("status must be complete, pending or cancelled");
+      }
+      formattedUpdates.status = updates.status.toLowerCase();
+    }
+
+    // add items if items given
+    if(updates.items){
+        formattedUpdates.items = [...updates.items];
+    }
+    
+    req.updates = formattedUpdates;
+    next();
+  } catch (error) {
+    res.status(500).send(error.message);
+    return;
+  }
+};
+
+const checkOrderExists = async (req, res, next) => {
+    const orderId = req.params.id;
+
+    try {
+        const results = await makeQuery(`SELECT * from orders WHERE id = ${orderId}`);
+
+        printDebug("check Order Exists", results);
+
+        next();
+    } catch (error) {
+        res.sendStatus(500);
+    }
 };
 
 const getTotalQuantity = (order) => {
@@ -74,4 +116,4 @@ const getTotalPrice = async (order) => {
   return sum;
 };
 
-module.exports = { checkNewOrderBody };
+module.exports = { checkNewOrderBody, checkUpdatesBody, checkOrderExists };

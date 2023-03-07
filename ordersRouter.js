@@ -3,8 +3,8 @@
 
 const express = require("express");
 const { printDebug } = require("./helpers/debugHelpers");
-const { checkNewOrderBody } = require("./middleware/ordersMiddleware");
-const { getAllOrders, getOrderById, addNeworder, addNewOrder, createNewOrder, deleteOrderById } = require("./postgres/orderQueries");
+const { checkNewOrderBody, checkUpdatesBody, checkOrderExists } = require("./middleware/ordersMiddleware");
+const { getAllOrders, getOrderById, addNeworder, addNewOrder, createNewOrder, deleteOrderById, updateOrderById } = require("./postgres/orderQueries");
 const ordersRouter = express.Router();
 
 
@@ -46,10 +46,16 @@ ordersRouter.post("/neworder", checkNewOrderBody, async (req, res)=>{
 });
 
 // update specific order by id
-ordersRouter.put("/:id", (req, res)=>{
+ordersRouter.put("/:id", checkOrderExists, checkUpdatesBody, async (req, res)=>{
     const orderId = req.params.id;
-    const updates = req.body;
-    res.send(`updating ${orderId} with updates: ${updates}`);
+    const updates = req.updates;
+
+    try {
+        const results = await updateOrderById(updates, orderId);
+        res.json(results);
+    } catch (error) {
+        res.sendStatus(500);
+    }
 });
 
 // delete specific order by id

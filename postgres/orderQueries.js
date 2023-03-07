@@ -24,7 +24,7 @@ const getOrderById = async (orderId) => {
   const client = await pool.connect();
   try {
     const { rows } = await client.query(`select * from orders WHERE id = $1`, [
-      orderId
+      orderId,
     ]);
 
     return rows;
@@ -38,42 +38,47 @@ const getOrderById = async (orderId) => {
 // requires userId
 // creates empty order if no additional params passed.
 const createNewOrder = async (order) => {
-  console.log("creating order...")
-  const { items, userId, status, total_item_price, total_quantity, shipping_price } = order;
-  printDebug(
-    "createNewOrder: order received",
-    order
-  )
+  console.log("creating order...");
+  const {
+    items,
+    userId,
+    status
+  } = order;
+  printDebug("createNewOrder: order received", order);
   const client = await pool.connect();
 
   // 1. create new order in orders
   try {
-
     await client.query("BEGIN");
 
-    const {rows} = await client.query(
+    const { rows } = await client.query(
       `INSERT INTO orders 
-        (user_id, status, total_item_price, total_quantity, shipping_price)
+        (user_id, status)
         VALUES
-        ($1, $2, $3, $4, $5)
+        ($1, $2)
         RETURNING *;
         `,
-      [userId, status, total_item_price, total_quantity, shipping_price]
+      [userId, status]
     );
 
     console.log(`order_id: ${rows[0].id}`);
-    
+
     // add orders with orders sent
-    if(items){
+    if (items) {
       const orderId = rows[0].id;
-      for(let i of items){
-        await client.query("INSERT INTO orders_items VALUES ($1, $2);", [orderId, i]);
+      for (let i of items) {
+        await client.query("INSERT INTO orders_items VALUES ($1, $2);", [
+          orderId,
+          i,
+        ]);
       }
     }
 
-    const results = await client.query("SELECT * FROM orders WHERE user_id = $1", [userId]);
+    const results = await client.query(
+      "SELECT * FROM orders WHERE user_id = $1",
+      [userId]
+    );
 
-    
     await client.query("COMMIT");
 
     return results.rows;
@@ -86,27 +91,55 @@ const createNewOrder = async (order) => {
   }
 };
 
-
 // update order in orders table
 // args: updates expected to be { items: [id, id, id, ...]}
 // errors: could not update order --> 500 internal server error
 // could not find order to update --> 404 Not Found
-const updateorderById = async (updates, orderId) => {
+const updateOrderById = async (updates, orderId) => {
   const client = await pool.connect();
 
   try {
     await client.query("BEGIN");
 
-    // update orders set {updates.key} = {updates.value} where id = {orderId}
-    await client.query("DELETE FROM orders_items WHERE order_id = $1", [orderId]);
-    for( let itemId of updates.items){
-        await client.query(`INSERT INTO orders_items VALUES ($1, $2);`, [orderId, itemId]);
+    
+    if (updates.items) {
+      // update orders set {updates.key} = {updates.value} where id = {orderId}
+      await client.query("DELETE FROM orders_items WHERE order_id = $1", [
+        orderId,
+      ]);
+      for (let itemId of updates.items) {
+        await client.query(`INSERT INTO orders_items VALUES ($1, $2);`, [
+          orderId,
+          itemId,
+        ]);
+      }
     }
-    const results = await client.query(`select * from orders_items where order_id = $1`, [orderId]);
 
+    if(updates.status){
+      await client.query(`UPDATE orders SET status = $1 WHERE id = $2`, [updates.status, orderId]);
+    }
+
+
+
+    const itemResults = await client.query(
+      `select items.name from items
+      JOIN orders_items ON items.id = orders_items.item_id
+      WHERE orders_items.order_id = $1`,
+      [orderId]
+    );
+
+    const orderResults = await client.query(
+      `SELECT * from orders WHERE id = $1`, [orderId]
+    )
     await client.query("COMMIT");
 
-    return results.rows;
+
+    const results = {
+      itemResults: itemResults.rows,
+      orderResults: orderResults.rows
+    }
+
+    return results;
   } catch (error) {
     await client.query("ROLLBACK");
     console.log("--------- Error update order by id ---------");
@@ -118,28 +151,36 @@ const updateorderById = async (updates, orderId) => {
   }
 };
 
-
 const deleteOrderById = async (orderId) => {
-    const client = await pool.connect();
-    try {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
 
-      await client.query("BEGIN");
+    await client.query("DELETE FROM orders_items WHERE order_id = $1", [
+      orderId,
+    ]);
 
-      await client.query("DELETE FROM orders_items WHERE order_id = $1", [orderId]);
-
-      const { rows } = await client.query(`DELETE FROM orders WHERE id = $1 RETURNING id, user_id`, [
-        orderId
-      ]);
-      await client.query("COMMIT")
-      return rows;
-    } catch (error) {
-      await client.query("ROLLBACK")
-      console.log(error);
-      throw new Error("error in deleting order in orders table for id: " + orderId);
-    } finally {
-      client.release();
-    }
+    const { rows } = await client.query(
+      `DELETE FROM orders WHERE id = $1 RETURNING id, user_id`,
+      [orderId]
+    );
+    await client.query("COMMIT");
+    return rows;
+  } catch (error) {
+    await client.query("ROLLBACK");
+    console.log(error);
+    throw new Error(
+      "error in deleting order in orders table for id: " + orderId
+    );
+  } finally {
+    client.release();
   }
+};
 
-
-module.exports = { getAllOrders, getOrderById, createNewOrder, updateorderById, deleteOrderById };
+module.exports = {
+  getAllOrders,
+  getOrderById,
+  createNewOrder,
+  updateOrderById,
+  deleteOrderById,
+};

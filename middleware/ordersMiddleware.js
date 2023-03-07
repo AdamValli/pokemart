@@ -11,24 +11,16 @@ const checkNewOrderBody = async (req, res, next) => {
     }
     const items = order.items ? order.items : false;
 
-    // const total_quantity = getTotalQuantity(order);
-    // const total_item_price = await getTotalPrice(order);
 
     const status = order.status
       ? order.status.toString().toLowerCase()
       : "pending";
 
-    // const shipping_price = order.shipping_price
-    //   ? parseInt(order.shipping_price)
-    //   : 0;
 
     const newOrder = {
       items,
       status,
       userId,
-    //   total_item_price,
-    //   total_quantity,
-    //   shipping_price,
     };
 
     req.newOrder = newOrder;

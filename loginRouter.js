@@ -6,7 +6,7 @@ const passport = require("passport");
 
 // GET login page
 loginRouter.get("/", (req, res)=>{
-    res.send("login page");
+    res.send("login page?");
 });
 
 // POST login to authenticate

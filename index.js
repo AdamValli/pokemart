@@ -51,13 +51,14 @@ const cartRouter = require("./cartRouter");
 const ordersRouter = require("./ordersRouter");
 const loginRouter = require("./loginRouter");
 const testRouter = require("./testRouter");
+const signupRouter = require("./signupRouter");
 app.use("/users", userRouter);
 app.use("/carts", cartRouter);
 app.use("/inventory", inventoryRouter);
 app.use("/orders", ordersRouter);
 app.use("/login", loginRouter);
 app.use("/test", testRouter);
-
+app.use("/signup", signupRouter);
 
 // routes
 app.get("/home", (req, res) => {

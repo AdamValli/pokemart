@@ -119,7 +119,7 @@ const updateorderById = async (updates, orderId) => {
 };
 
 
-const deleteorderById = async (orderId) => {
+const deleteOrderById = async (orderId) => {
     const client = await pool.connect();
     try {
 
@@ -142,4 +142,4 @@ const deleteorderById = async (orderId) => {
   }
 
 
-module.exports = { getAllOrders, getOrderById, createNewOrder, updateorderById, deleteorderById };
+module.exports = { getAllOrders, getOrderById, createNewOrder, updateorderById, deleteOrderById };

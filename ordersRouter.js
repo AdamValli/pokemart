@@ -4,7 +4,7 @@
 const express = require("express");
 const { printDebug } = require("./helpers/debugHelpers");
 const { checkNewOrderBody } = require("./middleware/ordersMiddleware");
-const { getAllOrders, getOrderById, addNeworder, addNewOrder, createNewOrder } = require("./postgres/orderQueries");
+const { getAllOrders, getOrderById, addNeworder, addNewOrder, createNewOrder, deleteOrderById } = require("./postgres/orderQueries");
 const ordersRouter = express.Router();
 
 
@@ -54,9 +54,15 @@ ordersRouter.put("/:id", (req, res)=>{
 
 // delete specific order by id
 // don't allow deleting orders? Keep record even if cancelled?
-ordersRouter.delete("/:id", (req, res)=>{
+ordersRouter.delete("/:id", async (req, res)=>{
     const orderId = req.params.id;
-    res.send(`deleting order ${orderId}.`);
+    try {
+        const results = await deleteOrderById(orderId);
+
+        res.json(results);
+    } catch (error) {
+        res.sendStatus(500);
+    }
 });
 
 

@@ -36,60 +36,12 @@ app.use(
 
 app.use(passport.initialize());
 app.use(passport.session());
-// passport.use(new LocalStrategy((username, password, done)=>{
     
-//     const found = {
-//         id: 1,
-//         username: "ash1",
-//         password: "123"
-//     }
-    
-//     // successful authentication
-//     if(username === found.username && password === found.password){
-//        return done(null, {id: found.id, username: found.username})
-//     } else {
-//         return done(null, false);
-//     }
-
-//     // error
-// }));
-
-// add user to session object
 
 passport.use(new LocalStrategy(authUser));
 passport.serializeUser(serializeUser);
 passport.deserializeUser(deserializeUser);
 
-// passport.serializeUser((user, done)=>{
-//     printDebug("Serializing User: ", user);
-
-//     return done(null, user.id);
-// });
-
-// // get user data from serialized user, by id 
-// // adds to req.user with additional info
-// passport.deserializeUser((id, done)=>{
-
-//     printDebug("Deserializing User Id: ", id);
-//     try {
-        
-//         // find user by id
-//         const found = {
-//             user: {
-//                 id: 1,
-//                 username: "ash1"
-//             },
-//             data: {
-//                 first_name: "ash",
-//                 last_name: "ketchum"
-//             }
-//         }
-//         console.log(found);
-//         return done(null, {...found});
-//     } catch (error) {
-//         return done(error, false);        
-//     }
-// });
 
 
 // routers config
@@ -105,6 +57,8 @@ app.use("/inventory", inventoryRouter);
 app.use("/orders", ordersRouter);
 app.use("/login", loginRouter);
 app.use("/test", testRouter);
+
+
 // routes
 app.get("/home", (req, res) => {
   console.log(req.session);

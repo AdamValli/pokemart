@@ -2,6 +2,8 @@
 
 const { getUserByUsername, getUserById } = require("../postgres/userQueries");
 const { printDebug } = require("./debugHelpers");
+const bcrypt = require("bcrypt");
+
 
 // looks up db and authenticates user
 const authUser = async (username, password, done) => {
@@ -17,8 +19,10 @@ const authUser = async (username, password, done) => {
     const user = { ...found[0] };
 
     // authenticate user
-    if (user.password !== password) {
-      // ADD BCRYPT
+
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
       throw new Error("Password incorrect");
     }
 

@@ -2,7 +2,7 @@
 
 
 const express = require("express");
-const { getAllCarts, getCartById } = require("./postgres/cartQueries");
+const { getAllCarts, getCartById, updateCartById } = require("./postgres/cartQueries");
 const cartRouter = express.Router();
 
 // get all carts
@@ -41,16 +41,20 @@ cartRouter.get("/:id", async (req, res)=>{
     }
 })
 
-// post new cart
-cartRouter.post("/newcart", (req, res)=>{
-    const cartId = req.body;
-    res.send("added new cart for cart " + cartId);
-});
-
 // update specific cart by id
-cartRouter.put("/:id", (req, res)=>{
+cartRouter.put("/:id", async (req, res)=>{
     const cartId = req.params.id;
-    const updates = req.body;
+    const body = req.body; // obj > list of item ids
+    const updates = { items: [...body]};
+    console.log(updates.items)
+    try {
+        const results = await updateCartById(updates, cartId);
+
+        res.json(results)
+    } catch (error) {
+        res.sendStatus(500);
+    }
+
     res.send(`updating ${cartId} with updates: ${updates}`);
 });
 

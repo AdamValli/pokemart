@@ -69,7 +69,7 @@ const addNewCart = async (cart) => {
 };
 
 // update cart in Carts table
-// args: updates expected to be populated with one of more of {cartname, password, email, fname, lname, dob}
+// args: updates expected to be { items: [id, id, id, ...]}
 // errors: could not update cart --> 500 internal server error
 // could not find cart to update --> 404 Not Found
 const updateCartById = async (updates, cartId) => {
@@ -79,11 +79,11 @@ const updateCartById = async (updates, cartId) => {
     await client.query("BEGIN");
 
     // update Carts set {updates.key} = {updates.value} where id = {cartId}
-    for( let key in updates){
-      console.log(`updating ${key} with value ${updates[key]}`);
-        await client.query(`UPDATE Carts SET ${key} = $1 WHERE id = $2`, [updates[key], cartId])
+    await client.query("DELETE FROM carts_items WHERE cart_id = $1", [cartId]);
+    for( let itemId of updates.items){
+        await client.query(`INSERT INTO carts_items VALUES ($1, $2);`, [cartId, itemId]);
     }
-    const results = await client.query(`select * from Carts where id = $1`, [cartId]);
+    const results = await client.query(`select * from carts_items where cart_id = $1`, [cartId]);
 
     await client.query("COMMIT");
 

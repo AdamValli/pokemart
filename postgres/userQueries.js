@@ -41,7 +41,7 @@ const getUserById = async (userId) => {
 // RETURN: added user details
 // errors: could not add new user --> 500 internal server error
 const addNewUser = async (user) => {
-  const { username, password, email, fname, lname, dob } = user;
+  const { username, password, email, first_name, last_name, date_of_birth } = user;
   const client = await pool.connect();
 
   try {
@@ -52,7 +52,7 @@ const addNewUser = async (user) => {
         ($1, $2, $3, $4, $5, $6)
         RETURNING id, username;
         `,
-      [username, password, email, fname, lname, dob]
+      [username, password, email, first_name, last_name, date_of_birth]
     );
 
     return rows;

@@ -2,8 +2,8 @@
 
 
 const express = require("express");
-const { checkNewItemBody } = require("./middleware/inventoryMiddleware");
-const { getAllItems, getItemById, addNewItem } = require("./postgres/itemQueries");
+const { checkNewItemBody, checkUpdatesBody } = require("./middleware/inventoryMiddleware");
+const { getAllItems, getItemById, addNewItem, updateitemById, updateItemById } = require("./postgres/itemQueries");
 const inventoryRouter = express.Router();
 
 // get all items in inventory
@@ -65,10 +65,16 @@ inventoryRouter.post("/newitem", checkNewItemBody,  async (req, res)=>{
 });
 
 // update specific item by id
-inventoryRouter.put("/:id", (req, res)=>{
+inventoryRouter.put("/:id", checkUpdatesBody, async (req, res)=>{
     const itemId = req.params.id;
-    const updates = req.body;
-    res.send(`updating ${itemId} with updates: ${updates}`);
+    const updates = req.updates;
+    try{
+        const results = await updateItemById(updates, itemId);
+
+        res.json(results);
+    } catch (error) {
+        res.status(500).send(error)
+    }
 });
 
 // delete specific item by id

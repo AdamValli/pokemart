@@ -53,40 +53,25 @@ const checkUpdatesBody = (req, res, next) => {
   // if fname / lname updating, check if fname / lname is correctly formatted
   // if dob updating, check if dob correctly formatted
   try {
-    if (updates.username) {
-      const isUsername = isUsernameCorrect(updates.username);
-      if (isUsername) formattedUpdates.username = isUsername;
-      else throw new Error("bad username");
+    if (updates.name) {
+      formattedUpdates.name = updates.name.trim().toString().toLowerCase();
     }
-    if (updates.password) {
-      const isPassword = isPasswordCorrect(updates.password);
-      if (isPassword) formattedUpdates.password = isPassword;
-      else throw new Error("bad password");
+    if (updates.stock) {
+      const newStock = parseInt(updates.stock);
+      formattedUpdates.stock = newStock;
     }
-    if (updates.fname) {
-      const isFnameCorrect = isNameCorrect(updates.fname);
-      if (isFnameCorrect) formattedUpdates.fname = isFnameCorrect;
-      else throw new Error("bad fname");
+    if (updates.price) {
+      const newPrice = parseInt(updates.price);
+      formattedUpdates.price = newPrice;
     }
-    if (updates.lname) {
-      const isLnameCorrect = isNameCorrect(updates.lname);
-      if (isLnameCorrect) formattedUpdates.fname = isLnameCorrect;
-      else throw new Error("bad lname");
-    }
-    if (updates.dob) {
-      const isDob = isDobCorrect(updates.dob);
-      if (isDob) formattedUpdates.dob = isDob;
-      else throw new Error("bad DOB");
-    }
-    if (updates.email) {
-      const isEmail = isEmailCorrect(updates.email);
-      if (isEmail) formattedUpdates.email = isEmail;
-      else throw new Error("bad email address");
+    if (updates.description) {
+      const newDescription = updates.description.toString();
+      formattedUpdates.description = newDescription;
     }
 
     if (!formattedUpdates) throw new Error("bad updates or nothing to update");
   } catch (error) {
-    console.log("--------- Error: check update body ----------");
+    console.log("--------- Error: check item update body ----------");
     console.log(error);
     console.log("---------------------------------------------");
     res.status(400).send(error.message);
@@ -97,6 +82,5 @@ const checkUpdatesBody = (req, res, next) => {
 
   next();
 };
-
 
 module.exports = { checkUpdatesBody, checkNewItemBody };

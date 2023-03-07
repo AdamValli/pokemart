@@ -72,16 +72,16 @@ const addNewItem = async (item) => {
 // args: updates expected to be populated with one of more of {itemname, password, email, fname, lname, dob}
 // errors: could not update item --> 500 internal server error
 // could not find item to update --> 404 Not Found
-const updateitemById = async (updates, itemId) => {
+const updateItemById = async (updates, itemId) => {
   const client = await pool.connect();
-  const parsedUpdates = parseUpdates(updates);
 
   try {
     await client.query("BEGIN");
 
     // update items set {updates.key} = {updates.value} where id = {itemId}
-    for( let key in parsedUpdates){
-        await client.query(`UPDATE items SET ${key} = $1 WHERE id = $2`, [parsedUpdates[key], itemId])
+    for( let key in updates){
+      console.log(`updating ${key} with value ${updates[key]}`);
+        await client.query(`UPDATE items SET ${key} = $1 WHERE id = $2`, [updates[key], itemId])
     }
     const results = await client.query(`select * from items where id = $1`, [itemId]);
 
@@ -116,22 +116,5 @@ const deleteitemById = async (itemId) => {
     }
   }
 
-// return updates object with key-values suitable for db
-const parseUpdates = (updates) => {
-  const newUpdates = {};
 
-  for (let i in updates) {
-    let key = i;
-    let value = updates[i];
-
-    if (key === "fname") key = "first_name";
-    if (key === "lname") key = "last_name";
-    if (key === "dob") key = "date_of_birth";
-
-    newUpdates[key] = value;
-  }
-
-  return newUpdates;
-};
-
-module.exports = { getAllItems, getItemById, addNewItem, updateitemById, deleteitemById };
+module.exports = { getAllItems, getItemById, addNewItem, updateItemById, deleteitemById };

@@ -12,7 +12,8 @@ signupRouter.get("/", (req, res) => {
 
 signupRouter.post("/", checkSignUpPostBody, checkUserExists, registerUser, (req, res)=>{
 
-    res.json(req.result);
+    // if registered, authenticate
+    res.json({});
 
 });
 

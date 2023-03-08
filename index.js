@@ -5,9 +5,13 @@ const morgan = require("morgan");
 const express = require("express");
 const app = express();
 
-const { authUser, serializeUser, deserializeUser } = require("./helpers/passportHelpers");
+const {
+  authUser,
+  serializeUser,
+  deserializeUser,
+  registerUser,
+} = require("./helpers/passportHelpers");
 const { printDebug } = require("./helpers/debugHelpers");
-
 
 // server config
 app.use(express.json(), express.urlencoded({ extended: true }), morgan("dev"));
@@ -36,13 +40,22 @@ app.use(
 
 app.use(passport.initialize());
 app.use(passport.session());
-    
+
+passport.use(
+  "local-signup",
+  new LocalStrategy(
+    {
+      usernameField: "username",
+      passwordField: "password",
+      passReqToCallback: true,
+    },
+    registerUser
+  )
+);
 
 passport.use(new LocalStrategy(authUser));
 passport.serializeUser(serializeUser);
 passport.deserializeUser(deserializeUser);
-
-
 
 // routers config
 const userRouter = require("./userRouter");
@@ -70,7 +83,6 @@ app.get("/home", (req, res) => {
 
   res.redirect("/login");
 });
-
 
 // -------- //
 const PORT = process.env.PORT || 8080;

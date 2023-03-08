@@ -4,6 +4,7 @@
 const express = require("express");
 const { getUserByUsername } = require("./postgres/userQueries");
 const testRouter = express.Router();
+const passport = require("passport");
 
 
 
@@ -21,9 +22,10 @@ testRouter.get("/", async (req, res)=>{
     res.redirect("/test/newtest");
  })
 
- testRouter.get("/newtest", (req, res)=>{
-     const body = req.body;
-     res.json(body)
- })
+ testRouter.post("/newtest", passport.authenticate('local-signup', {
+    successRedirect : '/home', // redirect to the secure profile section
+    failureRedirect : '/signup', // redirect back to the signup page if there is an error
+    failureFlash : true // allow flash messages
+}))
 
 module.exports = testRouter;

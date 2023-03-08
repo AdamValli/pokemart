@@ -6,7 +6,7 @@ const bcrypt = require("bcrypt");
 const { checkUsernameExists, checkEmailExists, isPasswordCorrect, isEmailCorrect, isNameCorrect, isDobCorrect } = require("./userHelpers");
 
 // looks up db and authenticates user
-const authUser = async (username, password, done) => {
+const authUser = async (usernameField, passwordField, done) => {
   try {
     // find user
     const found = await getUserByUsername(username);
@@ -51,7 +51,7 @@ const registerUser = async (req, username, password, done) => {
     ) {
       throw new Error("Missing data for sign up");
     }
-    const { username, password, email, first_name, last_name, date_of_birth } =
+    const { email, first_name, last_name, date_of_birth } =
       body;
 
     // username has correct format

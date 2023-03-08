@@ -17,6 +17,13 @@ testRouter.get("/", async (req, res)=>{
         res.sendStatus(500)
     }
 })
+ testRouter.post("/", (req, res)=>{
+    res.redirect("/test/newtest");
+ })
 
+ testRouter.get("/newtest", (req, res)=>{
+     const body = req.body;
+     res.json(body)
+ })
 
 module.exports = testRouter;

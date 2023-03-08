@@ -1,24 +1,25 @@
-
-
-
-
 // false if email is incorrect format
+
+const { getUserByUsername, getUserByEmail } = require("../postgres/userQueries");
+
 // return email if correct format
 const isEmailCorrect = (email) => {
-    var emailRegex = new RegExp(/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/, "g");
-    const isCorrect = emailRegex.test(email);
+  var emailRegex = new RegExp(
+    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/,
+    "g"
+  );
+  const isCorrect = emailRegex.test(email);
 
-    if(!isCorrect) return false;
+  if (!isCorrect) return false;
 
-    return email;
+  return email;
 };
-
 
 // return false if DOB not correctly formatted
 // return DOB if correctly formatted
 // TODO: Doesn't check 00-00-XXXX
 const isDobCorrect = (dob) => {
-    var dobRegex = new RegExp(/^(\d\d-\d\d-\d\d\d\d)$/, "g");
+  var dobRegex = new RegExp(/^(\d\d-\d\d-\d\d\d\d)$/, "g");
 
   const isCorrect = dobRegex.test(dob);
 
@@ -57,7 +58,6 @@ const isUsernameCorrect = (username) => {
 
 // true if password is correctly formatted
 const isPasswordCorrect = (password) => {
-  
   const isMinimumLength = password.length >= 5;
   const isString = typeof password === "string";
 
@@ -68,5 +68,44 @@ const isPasswordCorrect = (password) => {
   return password;
 };
 
+// true if found
+// false if not found
+const checkUsernameExists = async (username) => {
+  try {
+    const foundUsername = await getUserByUsername(username);
 
-module.exports = {isDobCorrect, isEmailCorrect, isNameCorrect, isUsernameCorrect, isPasswordCorrect};
+    if (foundUsername.length > 0) {
+      return true;
+    }
+
+    return false;
+  } catch (error) {
+    throw new Error(error.message)
+  }
+};
+
+// true if found,
+// false otherwise
+const checkEmailExists = async (email) => {
+  try {
+    const foundEmail = await getUserByEmail(email);
+
+    if (foundEmail.length > 0) {
+      return true
+    }
+
+    return false;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+module.exports = {
+  isDobCorrect,
+  isEmailCorrect,
+  isNameCorrect,
+  isUsernameCorrect,
+  isPasswordCorrect,
+  checkUsernameExists,
+  checkEmailExists,
+};

@@ -3,6 +3,7 @@
 const { getUserByUsername, getUserById, addNewUser } = require("../postgres/userQueries");
 const { printDebug } = require("./debugHelpers");
 const bcrypt = require("bcrypt");
+const { checkUsernameExists, checkEmailExists, isPasswordCorrect, isEmailCorrect, isNameCorrect, isDobCorrect } = require("./userHelpers");
 
 // looks up db and authenticates user
 const authUser = async (username, password, done) => {
@@ -35,25 +36,67 @@ const authUser = async (username, password, done) => {
 };
 
 const registerUser = async (req, username, password, done) => {
+  printDebug("passport > registerUser", req.body);
+  const body = req.body;
+
   try {
-    // check if user exists
-    const foundUsername = await getUserByUsername(username);
-
-    if (foundUsername.length > 0) {
-      throw new Error("Username already exists.");
+    // check all fields in sign up body
+    if (
+      !body.username ||
+      !body.password ||
+      !body.email ||
+      !body.first_name ||
+      !body.last_name ||
+      !body.date_of_birth
+    ) {
+      throw new Error("Missing data for sign up");
     }
-    // FOR EMAIL SIGN UP FUNCTIONALITY
-    // const foundEmail = await getUserByEmail(email);
+    const { username, password, email, first_name, last_name, date_of_birth } =
+      body;
 
-    // if(foundEmail.length > 0){
-    //     throw new Error("Account with this email already exists.");
-    // }
-
-    // check username is correct format
+    // username has correct format
     if (username.trim().includes(" ")) {
       throw new Error("Username incorrect formatting. Includes whitespace.");
     }
 
+    // password has correct format
+    if (!isPasswordCorrect(password)) {
+      throw new Error("Password is bad. Too short.");
+    }
+
+    // email has correct format
+    if (!isEmailCorrect(email)) {
+      throw new Error("Email is badly formatted.");
+    }
+
+    // first and last name has correct format
+    if (!isNameCorrect(first_name) || !isNameCorrect(last_name)) {
+      throw new Error(
+        "Names should not contain numbers and should be a string"
+      );
+    }
+    // dob has correct format
+    if (!isDobCorrect(date_of_birth)) {
+      throw new Error("Date of Birth is badly formatted. Expected: DD-MM-YYYY");
+    }
+
+
+    // CORRECT FORMAT, NOW CHECK IF USER / EMAIL EXISTS
+    // check if user exists
+    const usernameExists = await checkUsernameExists(username);
+
+    if (usernameExists) {
+      throw new Error("Username already exists.");
+    }
+
+    // check if email exists
+    const emailExists = await checkEmailExists(email);
+
+    if(emailExists){
+        throw new Error("Account with this email already exists.");
+    }
+
+    // USERNAME / EMAIL DO NOT EXIST, ADD NEW USER
     // encrypt password
     const salt = await bcrypt.genSalt(10);
     const encrypted = await bcrypt.hash(password, salt);
@@ -61,10 +104,10 @@ const registerUser = async (req, username, password, done) => {
     const user = {
       username: username.trim().toLowerCase(),
       password: encrypted,
-      email: "noemail2",
-      first_name: "null",
-      last_name: "null",
-      date_of_birth: "01-01-1990"
+      email: body.email.trim(),
+      first_name: body.first_name.trim(),
+      last_name: body.last_name.trim(),
+      date_of_birth: body.date_of_birth.trim()
     };
 
     // add user to db

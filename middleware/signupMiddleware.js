@@ -1,3 +1,6 @@
+
+// NOTE: these fns are for old sign up functionality, before local-signup. Deprecated.
+
 const {
   isPasswordCorrect,
   isEmailCorrect,

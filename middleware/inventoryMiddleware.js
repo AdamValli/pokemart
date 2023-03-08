@@ -1,4 +1,7 @@
 // must contain name
+
+const { checkItemExistsByName } = require("../helpers/inventoryHelpers");
+
 // if correct, adds req.newItem with formatted item details
 const checkNewItemBody = (req, res, next) => {
   const body = req.body;
@@ -42,6 +45,26 @@ const checkNewItemBody = (req, res, next) => {
   next();
 };
 
+
+// checks if username / email in use. 
+const checkItemNameExists = async (req, res, next) => {
+  const item = req.newItem;
+  
+  try {
+    const itemNameExists = await checkItemExistsByName(item.name);
+
+    if(itemNameExists){
+      throw new Error(
+        "Item already exists with this name. It's id: " + itemNameExists
+      )
+    }
+
+    next();
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
+};
+
 // accepts multiple updates
 // errors: bad update posted --> 400
 const checkUpdatesBody = (req, res, next) => {
@@ -83,4 +106,4 @@ const checkUpdatesBody = (req, res, next) => {
   next();
 };
 
-module.exports = { checkUpdatesBody, checkNewItemBody };
+module.exports = { checkUpdatesBody, checkNewItemBody, checkItemNameExists };

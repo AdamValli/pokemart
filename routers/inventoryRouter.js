@@ -2,7 +2,7 @@
 
 
 const express = require("express");
-const { checkNewItemBody, checkUpdatesBody } = require("../middleware/inventoryMiddleware");
+const { checkNewItemBody, checkUpdatesBody, checkItemNameExists } = require("../middleware/inventoryMiddleware");
 const { getAllItems, getItemById, addNewItem, updateitemById, updateItemById, deleteItemById } = require("../postgres/itemQueries");
 const inventoryRouter = express.Router();
 
@@ -45,7 +45,7 @@ inventoryRouter.get("/:id", async (req, res)=>{
 
 // post new item to db
 // CREATE ITEM : { ... IN } AND PASS TO GETITEMBYID()
-inventoryRouter.post("/newitem", checkNewItemBody,  async (req, res)=>{
+inventoryRouter.post("/newitem", checkNewItemBody, checkItemNameExists, async (req, res)=>{
     const newItem = req.newItem;
 
     try {

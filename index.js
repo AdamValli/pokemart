@@ -58,13 +58,13 @@ passport.serializeUser(serializeUser);
 passport.deserializeUser(deserializeUser);
 
 // routers config
-const userRouter = require("./userRouter");
-const inventoryRouter = require("./inventoryRouter");
-const cartRouter = require("./cartRouter");
-const ordersRouter = require("./ordersRouter");
-const loginRouter = require("./loginRouter");
-const testRouter = require("./testRouter");
-const signupRouter = require("./signupRouter");
+const userRouter = require("./routers/userRouter");
+const inventoryRouter = require("./routers/inventoryRouter");
+const cartRouter = require("./routers/cartRouter");
+const ordersRouter = require("./routers/ordersRouter");
+const loginRouter = require("./routers/loginRouter");
+const testRouter = require("./routers/testRouter");
+const signupRouter = require("./routers/signupRouter");
 app.use("/users", userRouter);
 app.use("/carts", cartRouter);
 app.use("/inventory", inventoryRouter);

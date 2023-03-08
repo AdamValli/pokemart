@@ -35,6 +35,23 @@ const getItemById = async (itemId) => {
   }
 };
 
+// get item row with name
+const getItemByName = async (itemName) => {
+  const client = await pool.connect();
+  try {
+    const { rows } = await client.query(`select * from items WHERE name = $1`, [
+      itemName,
+    ]);
+
+    return rows;
+  } catch (error) {
+    console.log(error);
+    throw new Error("error in querying items table for name: " + itemName);
+  } finally {
+    client.release();
+  }
+}
+
 // add item to items table
 // item args assumed to be correct (by caller)
 // RETURN: added item details
@@ -117,4 +134,4 @@ const deleteItemById = async (itemId) => {
   }
 
 
-module.exports = { getAllItems, getItemById, addNewItem, updateItemById, deleteItemById };
+module.exports = { getAllItems, getItemById, getItemByName, addNewItem, updateItemById, deleteItemById };

@@ -1,3 +1,5 @@
+const bcrypt = require("bcrypt");
+
 // must contain username, password, email, fname, lname, dob
 // if correct, adds req.user with formatted user details
 // TODO: format DOB str --> suitable for DB!
@@ -54,7 +56,7 @@ const checkNewUserBody = (req, res, next) => {
 
 // accepts multiple updates
 // errors: bad update posted --> 400
-const checkUpdatesBody = (req, res, next) => {
+const checkUpdatesBody = async (req, res, next) => {
   const updates = req.body;
   const formattedUpdates = {};
 
@@ -70,8 +72,12 @@ const checkUpdatesBody = (req, res, next) => {
     }
     if (updates.password) {
       const isPassword = isPasswordCorrect(updates.password);
-      if (isPassword) formattedUpdates.password = isPassword;
-      else throw new Error("bad password");
+      if (isPassword) {
+        // hash password first
+        const salt = await bcrypt.genSalt(10);
+        const hashed = await bcrypt.hash(isPassword, salt);
+        formattedUpdates.password = hashed;
+      } else throw new Error("bad password");
     }
     if (updates.fname) {
       const isFnameCorrect = isNameCorrect(updates.fname);
@@ -89,11 +95,10 @@ const checkUpdatesBody = (req, res, next) => {
       else throw new Error("bad DOB");
     }
     if (updates.email) {
-        const isEmail = isEmailCorrect(updates.email);
-        if (isEmail) formattedUpdates.email = isEmail;
-        else throw new Error("bad email address");
-      }
-  
+      const isEmail = isEmailCorrect(updates.email);
+      if (isEmail) formattedUpdates.email = isEmail;
+      else throw new Error("bad email address");
+    }
 
     if (!formattedUpdates) throw new Error("bad updates or nothing to update");
   } catch (error) {
@@ -112,20 +117,22 @@ const checkUpdatesBody = (req, res, next) => {
 // false if email is incorrect
 // return email if correct
 const isEmailCorrect = (email) => {
-    var emailRegex = new RegExp(/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/, "g");
-    const isCorrect = emailRegex.test(email);
+  var emailRegex = new RegExp(
+    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/,
+    "g"
+  );
+  const isCorrect = emailRegex.test(email);
 
-    if(!isCorrect) return false;
+  if (!isCorrect) return false;
 
-    return email;
+  return email;
 };
-
 
 // return false if DOB not correctly formatted
 // return DOB if correctly formatted
 // TODO: Doesn't check 00-00-XXXX
 const isDobCorrect = (dob) => {
-    var dobRegex = new RegExp(/^(\d\d-\d\d-\d\d\d\d)$/, "g");
+  var dobRegex = new RegExp(/^(\d\d-\d\d-\d\d\d\d)$/, "g");
 
   const isCorrect = dobRegex.test(dob);
 

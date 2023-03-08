@@ -1,7 +1,7 @@
 
 
 const { getAllUsers, getUserById, addNewUser, updateUserById, deleteUserById } = require("./postgres/userQueries");
-const { checkNewUserBody, checkUpdatesBody } = require("./middleware/userMiddleware");
+const { checkNewUserBody, checkUpdatesBody, checkUserExists } = require("./middleware/userMiddleware");
 const express = require("express");
 const userRouter = express.Router();
 
@@ -44,7 +44,7 @@ userRouter.get("/:id", async (req, res)=>{
 })
 
 // post new user
-userRouter.post("/newuser", checkNewUserBody, async (req, res)=>{
+userRouter.post("/newuser", checkNewUserBody, checkUserExists, async (req, res)=>{
     const newUser = req.user;
     try {
         const result = await addNewUser(newUser);

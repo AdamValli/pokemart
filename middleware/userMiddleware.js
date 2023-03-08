@@ -1,4 +1,5 @@
 const bcrypt = require("bcrypt");
+const { checkUsernameExists, checkEmailExists } = require("../helpers/userHelpers");
 
 // must contain username, password, email, fname, lname, dob
 // if correct, adds req.user with formatted user details
@@ -53,6 +54,27 @@ const checkNewUserBody = (req, res, next) => {
 
   next();
 };
+
+// checks if username / email in use. 
+const checkUserExists = async (req, res, next) => {
+  const user = req.user;
+  
+  try {
+    const usernameExists = await checkUsernameExists(user.username);
+    const emailExists = await checkEmailExists(user.email);
+
+    if(usernameExists || emailExists){
+      throw new Error(
+        "Username or Email already in use."
+      )
+    }
+
+    next();
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
+};
+
 
 // accepts multiple updates
 // errors: bad update posted --> 400
@@ -181,4 +203,4 @@ const isPasswordCorrect = (password) => {
   return password;
 };
 
-module.exports = { checkNewUserBody, checkUpdatesBody };
+module.exports = { checkNewUserBody, checkUpdatesBody, checkUserExists };

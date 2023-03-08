@@ -10,9 +10,9 @@ const checkNewUserBody = (req, res, next) => {
       !body.username ||
       !body.password ||
       !body.email ||
-      !body.fname ||
-      !body.lname ||
-      !body.dob
+      !body.first_name ||
+      !body.last_name ||
+      !body.date_of_birth
     ) {
       throw new Error("missing data for new user");
     }
@@ -44,9 +44,9 @@ const checkNewUserBody = (req, res, next) => {
     username: body.username.trim(),
     password: body.password,
     email: body.email,
-    fname: body.fname,
-    lname: body.lname,
-    dob: body.dob,
+    first_name: body.first_name,
+    last_name: body.last_name,
+    date_of_birth: body.date_of_birth,
   };
 
   req.user = formattedUser;
@@ -79,19 +79,19 @@ const checkUpdatesBody = async (req, res, next) => {
         formattedUpdates.password = hashed;
       } else throw new Error("bad password");
     }
-    if (updates.fname) {
-      const isFnameCorrect = isNameCorrect(updates.fname);
-      if (isFnameCorrect) formattedUpdates.fname = isFnameCorrect;
+    if (updates.first_name) {
+      const isFnameCorrect = isNameCorrect(updates.first_name);
+      if (isFnameCorrect) formattedUpdates.first_name = isFnameCorrect;
       else throw new Error("bad fname");
     }
-    if (updates.lname) {
-      const isLnameCorrect = isNameCorrect(updates.lname);
-      if (isLnameCorrect) formattedUpdates.fname = isLnameCorrect;
+    if (updates.last_name) {
+      const isLnameCorrect = isNameCorrect(updates.last_name);
+      if (isLnameCorrect) formattedUpdates.last_name = isLnameCorrect;
       else throw new Error("bad lname");
     }
-    if (updates.dob) {
-      const isDob = isDobCorrect(updates.dob);
-      if (isDob) formattedUpdates.dob = isDob;
+    if (updates.date_of_birth) {
+      const isDob = isDobCorrect(updates.date_of_birth);
+      if (isDob) formattedUpdates.date_of_birth = isDob;
       else throw new Error("bad DOB");
     }
     if (updates.email) {
